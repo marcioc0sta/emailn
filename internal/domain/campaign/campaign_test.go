@@ -17,7 +17,7 @@ func Test_NewCampaign_Create_Campaign(t *testing.T) {
 	// arrange
 	assert := assert.New(t)
 	// act
-	campaign := NewCampaign(name, content, contacts)
+	campaign, _ := NewCampaign(name, content, contacts)
 	// assert
 	assert.Equal(name, campaign.Name)
 	assert.Equal(content, campaign.Content)
@@ -28,7 +28,7 @@ func Test_NewCampaign_ID_notEmpty(t *testing.T) {
 	// arrange
 	assert := assert.New(t)
 	// act
-	campaign := NewCampaign(name, content, contacts)
+	campaign, _ := NewCampaign(name, content, contacts)
 	// assert
 	assert.NotEmpty(campaign.ID)
 }
@@ -38,8 +38,35 @@ func Test_NewCampaign_CreatedOn_Must_Be_Now(t *testing.T) {
 	assert := assert.New(t)
 	now := time.Now().Add(-time.Minute)
 	// act
-	campaign := NewCampaign(name, content, contacts)
+	campaign, _ := NewCampaign(name, content, contacts)
 	// assert
 	assert.NotEmpty(campaign.CreatedOn)
 	assert.True(campaign.CreatedOn.After(now))
+}
+
+func Test_NewCampaign_Must_Have_Name(t *testing.T) {
+	// arrange
+	assert := assert.New(t)
+	// act
+	_, err := NewCampaign("", content, contacts)
+	// assert
+	assert.EqualError(err, "name is required")
+}
+
+func Test_NewCampaign_Must_Have_Content(t *testing.T) {
+	// arrange
+	assert := assert.New(t)
+	// act
+	_, err := NewCampaign(name, "", contacts)
+	// assert
+	assert.EqualError(err, "content is required")
+}
+
+func Test_NewCampaign_Must_Have_Contacts(t *testing.T) {
+	// arrange
+	assert := assert.New(t)
+	// act
+	_, err := NewCampaign(name, content, []string{})
+	// assert
+	assert.EqualError(err, "at least one email is required")
 }
