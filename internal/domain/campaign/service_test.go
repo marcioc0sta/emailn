@@ -2,6 +2,7 @@ package campaign
 
 import (
 	"emailn/internal/contract"
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,8 +14,6 @@ type repositoryMock struct {
 }
 
 func (r *repositoryMock) Save(campaign *Campaign) error {
-	println("Mocked Save")
-	println(campaign.Name)
 	args := r.Called(campaign)
 	return args.Error(0)
 }
@@ -32,7 +31,6 @@ func Test_Create_Campaign(t *testing.T) {
 	// arrange
 	repositoryMock := new(repositoryMock)
 	service.Repository = repositoryMock
-
 	repositoryMock.On("Save", mock.MatchedBy(func(campaign *Campaign) bool {
 		if campaign.Name != newCampaign.Name ||
 			campaign.Content != newCampaign.Content ||
@@ -42,20 +40,31 @@ func Test_Create_Campaign(t *testing.T) {
 
 		return true
 	})).Return(nil)
-
 	// act
 	id, _ := service.Create(newCampaign)
-
 	// assert
 	assert.NotEmpty(t, id)
 	repositoryMock.AssertExpectations(t)
+}
+
+func Test_Create_Campaign_Domain_Error(t *testing.T) {
+	// arrange
+	repositoryMock := new(repositoryMock)
+	service.Repository = repositoryMock
+	newCampaign.Name = ""
+
+	// act
+	_, err := service.Create(newCampaign)
+	// assert
+	assert.NotNil(t, err.Error())
+
 }
 
 func Test_Save_Campaign(t *testing.T) {
 	// arrange
 	repositoryMock := new(repositoryMock)
 	service.Repository = repositoryMock
-
+	newCampaign.Name = "Campaign 1"
 	repositoryMock.On("Save", mock.MatchedBy(func(campaign *Campaign) bool {
 		if campaign.Name != newCampaign.Name ||
 			campaign.Content != newCampaign.Content ||
@@ -65,11 +74,20 @@ func Test_Save_Campaign(t *testing.T) {
 
 		return true
 	})).Return(nil)
-
 	// act
 	service.Create(newCampaign)
-
 	// assert
 	repositoryMock.AssertExpectations(t)
+}
 
+func Test_Error_Save_Campaign(t *testing.T) {
+	// arrange
+	repositoryMock := new(repositoryMock)
+	service.Repository = repositoryMock
+	newCampaign.Name = ""
+	repositoryMock.On("Save", mock.Anything).Return(errors.New("error saving campaign"))
+	// act
+	_, err := service.Create(newCampaign)
+	// assert
+	assert.NotNil(t, err.Error())
 }
