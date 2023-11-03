@@ -1,6 +1,7 @@
 package campaign
 
 import (
+	internalErrors "emailn/internal/InternalErrors"
 	"emailn/internal/contract"
 	"errors"
 	"testing"
@@ -90,4 +91,5 @@ func Test_Error_Save_Campaign(t *testing.T) {
 	_, err := service.Create(newCampaign)
 	// assert
 	assert.NotNil(t, err.Error())
+	assert.True(t, errors.Is(internalErrors.ErrInternal, err))
 }
