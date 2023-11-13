@@ -19,6 +19,10 @@ func (r *repositoryMock) Save(campaign *Campaign) error {
 	return args.Error(0)
 }
 
+func (r *repositoryMock) Get() []Campaign {
+	return []Campaign{}
+}
+
 var (
 	newCampaign = contract.NewCampaign{
 		Name:    "Campaign 1",
