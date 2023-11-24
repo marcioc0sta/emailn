@@ -9,23 +9,28 @@ import (
 	"github.com/go-chi/render"
 )
 
-func (h *Handler) CreateCampaign(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateCampaign(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	var req contract.NewCampaign
 	render.DecodeJSON(r.Body, &req)
 	id, err := h.CampaignService.Create(req)
 	if err != nil {
 		if errors.Is(err, internalErrors.ErrInternal) {
-			render.Status(r, http.StatusInternalServerError)
+			return nil, http.StatusInternalServerError, err
 		}
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, map[string]string{"error": err.Error()})
-		return
+		return nil, http.StatusBadRequest, err
 	}
-	render.Status(r, http.StatusCreated)
-	render.JSON(w, r, map[string]string{"id": id})
+
+	return map[string]string{"id": id}, http.StatusCreated, nil
 }
 
-func (h *Handler) GetCampaigns(w http.ResponseWriter, r *http.Request) {
-	render.Status(r, http.StatusOK)
-	render.JSON(w, r, h.CampaignService.Repository.Get())
+func (h *Handler) GetCampaigns(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+	campaigns, err := h.CampaignService.Repository.Get()
+	if err != nil {
+		if errors.Is(err, internalErrors.ErrInternal) {
+			return nil, http.StatusInternalServerError, err
+		}
+		return nil, http.StatusBadRequest, err
+	}
+
+	return campaigns, http.StatusOK, nil
 }
