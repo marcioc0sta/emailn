@@ -16,8 +16,9 @@ func ErrorHandler(endpointFunc EndpointFunc) http.HandlerFunc {
 		if err != nil {
 			if errors.Is(err, internalErrors.ErrInternal) {
 				render.Status(r, http.StatusInternalServerError)
+			} else {
+				render.Status(r, http.StatusBadRequest)
 			}
-			render.Status(r, http.StatusBadRequest)
 			render.JSON(w, r, map[string]string{"error": err.Error()})
 			return
 		}
