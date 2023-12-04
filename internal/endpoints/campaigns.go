@@ -15,6 +15,6 @@ func (h *Handler) CreateCampaign(w http.ResponseWriter, r *http.Request) (interf
 }
 
 func (h *Handler) GetCampaigns(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
-	campaigns, err := h.CampaignService.Get()
-	return campaigns, http.StatusOK, err
+	// campaigns, err := h.CampaignService.Get()
+	return nil, http.StatusOK, nil
 }

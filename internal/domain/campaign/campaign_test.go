@@ -30,6 +30,13 @@ func Test_NewCampaign_ID_notEmpty(t *testing.T) {
 	assert.NotEmpty(t, campaign.ID)
 }
 
+func Test_NewCampaign_Start_With_Pending_Status(t *testing.T) {
+	// act
+	campaign, _ := NewCampaign(name, content, contacts)
+	// assert
+	assert.Equal(t, Pending, campaign.Status)
+}
+
 func Test_NewCampaign_CreatedOn_Must_Be_Now(t *testing.T) {
 	// arrange
 	now := time.Now().Add(-time.Minute)

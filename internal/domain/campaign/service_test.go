@@ -20,7 +20,12 @@ func (r *repositoryMock) Save(campaign *Campaign) error {
 }
 
 func (r *repositoryMock) Get() ([]Campaign, error) {
-	return []Campaign{}, nil
+	return nil, nil
+}
+
+func (r *repositoryMock) GetBy(id string) (*Campaign, error) {
+	args := r.Called(id)
+	return args.Get(0).(*Campaign), args.Error(1)
 }
 
 var (
@@ -88,4 +93,16 @@ func Test_Error_Save_Campaign(t *testing.T) {
 	assert.NotNil(t, err.Error())
 	assert.True(t, errors.Is(internalErrors.ErrInternal, err))
 	repositoryMock.AssertExpectations(t)
+}
+
+func Test_GetById(t *testing.T) {
+	// arrange
+	campaign, _ := NewCampaign(newCampaign.Name, newCampaign.Content, newCampaign.Emails)
+	repositoryMock := new(repositoryMock)
+	service.Repository = repositoryMock
+	repositoryMock.On("GetBy", mock.Anything).Return(campaign, nil)
+	// act
+	campaignResponse, _ := service.GetBy(campaign.ID)
+	// assert
+	assert.Equal(t, campaign.ID, campaignResponse.ID)
 }
